@@ -3,8 +3,22 @@ from discord.ext import commands
 import yt_dlp
 import asyncio
 import os
+import subprocess
+import sys
 from flask import Flask
 from threading import Thread
+
+# FFmpeg'i kontrol et ve yükle
+def ffmpeg_kur():
+    try:
+        subprocess.run(['ffmpeg', '-version'], capture_output=True)
+        return True
+    except:
+        print("FFmpeg yok, yükleniyor...")
+        os.system('pip install ffmpeg-python')
+        return False
+
+ffmpeg_kur()
 
 app = Flask(__name__)
 
@@ -78,8 +92,13 @@ async def oynat(ctx):
     url, sarki_adi = kuyruk[ctx.guild.id].pop(0)
     
     try:
+        # FFmpeg yolunu manuel ayarla
+        ffmpeg_path = os.path.join(os.getcwd(), 'ffmpeg')
+        if not os.path.exists(ffmpeg_path):
+            ffmpeg_path = 'ffmpeg'
+        
         ctx.voice_client.play(
-            discord.FFmpegPCMAudio(url, **FFMPEG_OPTIONS),
+            discord.FFmpegPCMAudio(url, **FFMPEG_OPTIONS, executable=ffmpeg_path),
             after=lambda e: asyncio.run_coroutine_threadsafe(oynat(ctx), bot.loop)
         )
         await ctx.send(f"🎵 Şimdi çalıyor: {sarki_adi}")
