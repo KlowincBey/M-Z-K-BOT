@@ -1,4 +1,5 @@
 discord.py
 yt-dlp
-flask 
+flask
 PyNaCl
+ffmpeg-python
