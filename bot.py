@@ -3,6 +3,8 @@ from discord.ext import commands
 import yt_dlp
 import asyncio
 import os
+import subprocess
+import sys
 from flask import Flask
 from threading import Thread
 
@@ -17,6 +19,17 @@ def run_web():
 
 intents = discord.Intents.all()
 bot = commands.Bot(command_prefix='!', intents=intents, help_command=None)
+
+# FFmpeg yolunu kontrol et
+def ffmpeg_bul():
+    try:
+        subprocess.run(['ffmpeg', '-version'], capture_output=True)
+        return 'ffmpeg'
+    except:
+        return None
+
+FFMPEG_PATH = ffmpeg_bul()
+print(f"FFmpeg yolu: {FFMPEG_PATH}")
 
 FFMPEG_OPTIONS = {
     'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5',
@@ -78,11 +91,19 @@ async def oynat(ctx):
     url, sarki_adi = kuyruk[ctx.guild.id].pop(0)
     
     try:
-        ctx.voice_client.play(
-            discord.FFmpegPCMAudio(url, **FFMPEG_OPTIONS),
-            after=lambda e: asyncio.run_coroutine_threadsafe(oynat(ctx), bot.loop)
-        )
-        await ctx.send(f"🎵 Simdi caliyor: {sarki_adi}")
+        if FFMPEG_PATH:
+            ctx.voice_client.play(
+                discord.FFmpegPCMAudio(url, **FFMPEG_OPTIONS),
+                after=lambda e: asyncio.run_coroutine_threadsafe(oynat(ctx), bot.loop)
+            )
+            await ctx.send(f"🎵 Simdi caliyor: {sarki_adi}")
+        else:
+            # FFmpeg yoksa direkt ses akışı dene
+            ctx.voice_client.play(
+                discord.FFmpegPCMAudio(url),
+                after=lambda e: asyncio.run_coroutine_threadsafe(oynat(ctx), bot.loop)
+            )
+            await ctx.send(f"🎵 Simdi caliyor (FFmpeg'siz): {sarki_adi}")
     except Exception as e:
         await ctx.send(f"❌ Hata: {e}")
 
