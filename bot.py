@@ -18,24 +18,20 @@ def run_web():
 intents = discord.Intents.all()
 bot = commands.Bot(command_prefix='!', intents=intents, help_command=None)
 
-# Ses için FFmpeg ayarı (Render'da yüklü olmalı)
 FFMPEG_OPTIONS = {
     'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5',
     'options': '-vn'
 }
 
-# Kuyruk sistemi
 kuyruk = {}
-sure = {}
 
 @bot.event
 async def on_ready():
-    await bot.change_presence(activity=discord.Game(name="/yardim"))
+    await bot.change_presence(activity=discord.Game(name="!yardım"))
     print(f'✅ JUA Müzik hazır: {bot.user}')
 
 @bot.command()
 async def çal(ctx, *, sarki: str):
-    """Müzik çalar."""
     if not ctx.author.voice:
         await ctx.send("Bir ses kanalında olmalısın!")
         return
@@ -49,7 +45,6 @@ async def çal(ctx, *, sarki: str):
     await ctx.send(f"🔍 {sarki} aranıyor...")
     
     try:
-        # YouTube'da ara
         ydl_opts = {
             'format': 'bestaudio/best',
             'quiet': True,
@@ -64,7 +59,6 @@ async def çal(ctx, *, sarki: str):
             url = info['url']
             sarki_adi = info.get('title', sarki)
         
-        # Kuyruğa ekle
         if ctx.guild.id not in kuyruk:
             kuyruk[ctx.guild.id] = []
         kuyruk[ctx.guild.id].append((url, sarki_adi))
@@ -78,7 +72,6 @@ async def çal(ctx, *, sarki: str):
         await ctx.send(f"❌ Hata: {str(e)[:100]}")
 
 async def oynat(ctx):
-    """Sıradaki şarkıyı çalar."""
     if ctx.guild.id not in kuyruk or not kuyruk[ctx.guild.id]:
         return
     
@@ -95,21 +88,18 @@ async def oynat(ctx):
 
 @bot.command()
 async def dur(ctx):
-    """Müziği durdurur."""
     if ctx.voice_client and ctx.voice_client.is_playing():
         ctx.voice_client.pause()
         await ctx.send("⏸️ Durduruldu.")
 
 @bot.command()
 async def devam(ctx):
-    """Duran müziği devam ettirir."""
     if ctx.voice_client and ctx.voice_client.is_paused():
         ctx.voice_client.resume()
         await ctx.send("▶️ Devam ediyor.")
 
 @bot.command()
 async def geç(ctx):
-    """Sıradaki şarkıya geçer."""
     if ctx.voice_client:
         ctx.voice_client.stop()
         await ctx.send("⏭️ Geçiliyor...")
@@ -117,7 +107,6 @@ async def geç(ctx):
 
 @bot.command()
 async def kuyruk(ctx):
-    """Çalma listesini gösterir."""
     if ctx.guild.id in kuyruk and kuyruk[ctx.guild.id]:
         liste = "\n".join([f"{i+1}. {s[1]}" for i, s in enumerate(kuyruk[ctx.guild.id])])
         await ctx.send(f"📋 **Kuyruk:**\n{liste}")
@@ -126,14 +115,12 @@ async def kuyruk(ctx):
 
 @bot.command()
 async def ses(ctx, seviye: int):
-    """Ses seviyesini ayarlar."""
-    if ctx.voice_client:
+    if ctx.voice_client and ctx.voice_client.source:
         ctx.voice_client.source.volume = seviye / 100
         await ctx.send(f"🔊 Ses: {seviye}%")
 
 @bot.command()
 async def ayrıl(ctx):
-    """Bot ses kanalından ayrılır."""
     if ctx.voice_client:
         await ctx.voice_client.disconnect()
         if ctx.guild.id in kuyruk:
