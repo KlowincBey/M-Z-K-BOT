@@ -3,22 +3,8 @@ from discord.ext import commands
 import yt_dlp
 import asyncio
 import os
-import subprocess
-import sys
 from flask import Flask
 from threading import Thread
-
-# FFmpeg'i kontrol et ve yükle
-def ffmpeg_kur():
-    try:
-        subprocess.run(['ffmpeg', '-version'], capture_output=True)
-        return True
-    except:
-        print("FFmpeg yok, yükleniyor...")
-        os.system('pip install ffmpeg-python')
-        return False
-
-ffmpeg_kur()
 
 app = Flask(__name__)
 
@@ -45,7 +31,7 @@ async def on_ready():
     print(f'✅ JUA Müzik hazır: {bot.user}')
 
 @bot.command()
-async def çal(ctx, *, sarki: str):
+async def cal(ctx, *, sarki: str):
     if not ctx.author.voice:
         await ctx.send("Bir ses kanalında olmalısın!")
         return
@@ -92,13 +78,8 @@ async def oynat(ctx):
     url, sarki_adi = kuyruk[ctx.guild.id].pop(0)
     
     try:
-        # FFmpeg yolunu manuel ayarla
-        ffmpeg_path = os.path.join(os.getcwd(), 'ffmpeg')
-        if not os.path.exists(ffmpeg_path):
-            ffmpeg_path = 'ffmpeg'
-        
         ctx.voice_client.play(
-            discord.FFmpegPCMAudio(url, **FFMPEG_OPTIONS, executable=ffmpeg_path),
+            discord.FFmpegPCMAudio(url, **FFMPEG_OPTIONS),
             after=lambda e: asyncio.run_coroutine_threadsafe(oynat(ctx), bot.loop)
         )
         await ctx.send(f"🎵 Şimdi çalıyor: {sarki_adi}")
@@ -118,7 +99,7 @@ async def devam(ctx):
         await ctx.send("▶️ Devam ediyor.")
 
 @bot.command()
-async def geç(ctx):
+async def gec(ctx):
     if ctx.voice_client:
         ctx.voice_client.stop()
         await ctx.send("⏭️ Geçiliyor...")
@@ -139,7 +120,7 @@ async def ses(ctx, seviye: int):
         await ctx.send(f"🔊 Ses: {seviye}%")
 
 @bot.command()
-async def ayrıl(ctx):
+async def ayril(ctx):
     if ctx.voice_client:
         await ctx.voice_client.disconnect()
         if ctx.guild.id in kuyruk:
@@ -150,13 +131,13 @@ async def ayrıl(ctx):
 async def yardım(ctx):
     await ctx.send(
         "**🎵 JUA Müzik Komutları**\n\n"
-        "!çal <şarkı> - Müzik çalar\n"
+        "!cal <şarkı> - Müzik çalar\n"
         "!dur - Durdurur\n"
         "!devam - Devam ettirir\n"
-        "!geç - Sonraki şarkıya geçer\n"
+        "!gec - Sonraki şarkıya geçer\n"
         "!kuyruk - Kuyruğu gösterir\n"
         "!ses <0-100> - Ses ayarı\n"
-        "!ayrıl - Bot ayrılır"
+        "!ayril - Bot ayrılır"
     )
 
 if __name__ == "__main__":
