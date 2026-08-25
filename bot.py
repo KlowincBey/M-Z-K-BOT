@@ -27,13 +27,13 @@ kuyruk = {}
 
 @bot.event
 async def on_ready():
-    await bot.change_presence(activity=discord.Game(name="!yardım"))
-    print(f'✅ JUA Müzik hazır: {bot.user}')
+    await bot.change_presence(activity=discord.Game(name="!yardim"))
+    print(f'✅ JUA Müzik hazir: {bot.user}')
 
 @bot.command()
 async def cal(ctx, *, sarki: str):
     if not ctx.author.voice:
-        await ctx.send("Bir ses kanalında olmalısın!")
+        await ctx.send("Bir ses kanalinda olmalisin!")
         return
     
     kanal = ctx.author.voice.channel
@@ -42,7 +42,7 @@ async def cal(ctx, *, sarki: str):
     elif ctx.voice_client.channel != kanal:
         await ctx.voice_client.move_to(kanal)
     
-    await ctx.send(f"🔍 {sarki} aranıyor...")
+    await ctx.send(f"🔍 {sarki} araniyor...")
     
     try:
         ydl_opts = {
@@ -66,7 +66,7 @@ async def cal(ctx, *, sarki: str):
         if not ctx.voice_client.is_playing():
             await oynat(ctx)
         else:
-            await ctx.send(f"✅ {sarki_adi} kuyruğa eklendi.")
+            await ctx.send(f"✅ {sarki_adi} kuyruga eklendi.")
             
     except Exception as e:
         await ctx.send(f"❌ Hata: {str(e)[:100]}")
@@ -82,7 +82,7 @@ async def oynat(ctx):
             discord.FFmpegPCMAudio(url, **FFMPEG_OPTIONS),
             after=lambda e: asyncio.run_coroutine_threadsafe(oynat(ctx), bot.loop)
         )
-        await ctx.send(f"🎵 Şimdi çalıyor: {sarki_adi}")
+        await ctx.send(f"🎵 Simdi caliyor: {sarki_adi}")
     except Exception as e:
         await ctx.send(f"❌ Hata: {e}")
 
@@ -111,7 +111,7 @@ async def kuyruk(ctx):
         liste = "\n".join([f"{i+1}. {s[1]}" for i, s in enumerate(kuyruk[ctx.guild.id])])
         await ctx.send(f"📋 **Kuyruk:**\n{liste}")
     else:
-        await ctx.send("📋 Kuyruk boş.")
+        await ctx.send("📋 Kuyruk bos.")
 
 @bot.command()
 async def ses(ctx, seviye: int):
@@ -125,19 +125,19 @@ async def ayril(ctx):
         await ctx.voice_client.disconnect()
         if ctx.guild.id in kuyruk:
             kuyruk[ctx.guild.id] = []
-        await ctx.send("👋 Ayrıldı.")
+        await ctx.send("👋 Ayrildi.")
 
 @bot.command()
-async def yardım(ctx):
+async def yardim(ctx):
     await ctx.send(
-        "**🎵 JUA Müzik Komutları**\n\n"
-        "!cal <şarkı> - Müzik çalar\n"
+        "**🎵 JUA Muzik Komutlari**\n\n"
+        "!cal <sarki> - Muzik calar\n"
         "!dur - Durdurur\n"
         "!devam - Devam ettirir\n"
-        "!gec - Sonraki şarkıya geçer\n"
-        "!kuyruk - Kuyruğu gösterir\n"
-        "!ses <0-100> - Ses ayarı\n"
-        "!ayril - Bot ayrılır"
+        "!gec - Sonraki sarkiya gecer\n"
+        "!kuyruk - Kuyrugu gosterir\n"
+        "!ses <0-100> - Ses ayari\n"
+        "!ayril - Bot ayrilir"
     )
 
 if __name__ == "__main__":
@@ -146,4 +146,4 @@ if __name__ == "__main__":
     if token:
         bot.run(token)
     else:
-        print("❌ Token ayarlanmamış")
+        print("❌ Token ayarlanmamis")
