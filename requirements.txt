@@ -1,4 +1,5 @@
-discord.py
+discord.py==2.5.0
+davey
 yt-dlp
 flask
 PyNaCl
